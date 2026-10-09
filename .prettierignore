@@ -1,7 +1,19 @@
-/.vscode
-/node_modules
-./dist
+# Editor configuration
+/.vscode/
 
-*.env
-.env
+# Dependencies
+/node_modules/
+
+# Build output
+/dist/
+
+# Environment files
+
+# files ending with .env
+*.env 
+
+# files named exactly .env
+.env 
+
+# files starting with .env and followed by any extension
 .env.*
