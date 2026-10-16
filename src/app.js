@@ -14,4 +14,10 @@ app.use(express.urlencoded({extended: true, limit: "16kb"}));//will encode the u
 app.use(express.static("public"));//used to store public assest like pdf file etc. in public folder
 app.use(cookieParser())//use to access and set cookies on the user browser
 
+//import routes
+import userRoutes from "./routes/user.routes.js";
+
+//use routes
+app.use("/api/v1/users", userRoutes);
+
 export default app;
