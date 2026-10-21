@@ -1,44 +1,52 @@
 import { v2 as cloudinary } from "cloudinary";
+import { unlink } from "node:fs/promises";
 
-const uploadOnCloudinary = async function () {
-  // Configuration
+const uploadOnCloudinary = async (localFilePath) => {
+  if (!localFilePath) {
+    throw new Error("A local file path is required for Cloudinary upload");
+  }
+
+  const { CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET } =
+    process.env;
+
+  if (!CLOUDINARY_CLOUD_NAME || !CLOUDINARY_API_KEY || !CLOUDINARY_API_SECRET) {
+    throw new Error("Cloudinary environment variables are not configured");
+  }
+
   cloudinary.config({
-    cloud_name: "process.env.CLOUDINARY_CLOUD_NAME",
-    api_key: "process.env.CLOUDINARY_API_KEY",
-    api_secret: "process.env.CLOUDINARY_API_SECRET",
+    cloud_name: CLOUDINARY_CLOUD_NAME,
+    api_key: CLOUDINARY_API_KEY,
+    api_secret: CLOUDINARY_API_SECRET,
   });
 
-  // Upload an image
-  const uploadResult = await cloudinary.uploader
-    .upload(
-      "https://res.cloudinary.com/demo/image/upload/getting-started/shoes.jpg",
-      {
-        public_id: "shoes",
-      }
-    )
-    .catch((error) => {
-      console.log(error);
+  let uploadResult;
+  let uploadError;
+
+  try {
+    uploadResult = await cloudinary.uploader.upload(localFilePath, {
+      resource_type: "auto",
     });
+  } catch (error) {
+    uploadError = error;
+  }
 
-  console.log(uploadResult);
+  try {
+    await unlink(localFilePath);
+  } catch (cleanupError) {
+    if (cleanupError.code !== "ENOENT") {
+      if (uploadError) {
+        console.error("Failed to remove temporary upload file:", cleanupError);
+      } else {
+        throw cleanupError;
+      }
+    }
+  }
 
-  // Optimize delivery by resizing and applying auto-format and auto-quality
-  const optimizeUrl = cloudinary.url("shoes", {
-    fetch_format: "auto",
-    quality: "auto",
-  });
+  if (uploadError) {
+    throw uploadError;
+  }
 
-  console.log(optimizeUrl);
-
-  // Transform the image: auto-crop to square aspect_ratio
-  const autoCropUrl = cloudinary.url("shoes", {
-    crop: "auto",
-    gravity: "auto",
-    width: 500,
-    height: 500,
-  });
-
-  console.log(autoCropUrl);
+  return uploadResult;
 };
 
 export { uploadOnCloudinary };
