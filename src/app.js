@@ -12,7 +12,7 @@ app.use(cors({
 app.use(express.json({limit: "16kb"}));// will accept the json data
 app.use(express.urlencoded({extended: true, limit: "16kb"}));//will encode the url
 app.use(express.static("public"));//used to store public assest like pdf file etc. in public folder
-app.use(cookieParser())//use to access and set cookies on the user browser
+app.use(cookieParser())//use to access and set cookies on the user browser, now we can access cookies from req, res too
 
 //import routes
 import userRoutes from "./routes/user.routes.js";
