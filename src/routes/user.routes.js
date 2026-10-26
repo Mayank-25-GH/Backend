@@ -1,5 +1,6 @@
 import { Router } from "express";
 import {
+  refreshAccessToken,
   loginUser,
   logoutUser,
   registerUser,
@@ -29,5 +30,8 @@ router.route("/login").post(loginUser);
 //secured routes
 router.route("/logout").post(verifyJWT, logoutUser);
 //as soon as verifyJWT done it's work it will handover work to logoutUser due to next() used in verify JWT
+
+router.route("/refresh-token").post(refreshAccessToken);
+//we already done verifyJWT in refreshAccessToken so no need to add it above
 
 export default router;
